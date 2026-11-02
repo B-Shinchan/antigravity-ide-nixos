@@ -7,6 +7,7 @@
   makeWrapper,
   addDriverRunpath,
   desktop-file-utils,
+  imagemagick,
   # Desktop & Graphical Libraries
   alsa-lib,
   at-spi2-atk,
@@ -113,6 +114,7 @@ let
       makeWrapper
       addDriverRunpath
       desktop-file-utils
+      imagemagick
     ];
 
     buildInputs = [
@@ -191,13 +193,14 @@ let
       install -Dm644 ${../../assets/antigravity-ide.desktop} $out/share/applications/antigravity-ide.desktop
       desktop-file-edit --set-key=Exec --set-value="antigravity-ide %F" $out/share/applications/antigravity-ide.desktop
 
-      # Install icons
-      install -Dm644 ${../../assets/antigravity.png} $out/share/pixmaps/antigravity-ide.png
-      ln -s antigravity-ide.png $out/share/pixmaps/antigravity.png
-      install -Dm644 ${../../assets/antigravity.png} $out/share/icons/hicolor/1024x1024/apps/antigravity-ide.png
-      ln -s antigravity-ide.png $out/share/icons/hicolor/1024x1024/apps/antigravity.png
+      # Install scaled icons (16 24 32 48 64 128 256 512 1024)
+      for size in 16 24 32 48 64 128 256 512 1024; do
+        mkdir -p $out/share/icons/hicolor/''${size}x''${size}/apps
+        magick ${../../assets/antigravity-ide.png} -filter Lanczos -resize ''${size}x''${size} \
+          $out/share/icons/hicolor/''${size}x''${size}/apps/antigravity-ide.png
+      done
+      install -Dm644 ${../../assets/antigravity-ide.png} $out/share/pixmaps/antigravity-ide.png
       install -Dm644 ${../../assets/antigravity.svg} $out/share/icons/hicolor/scalable/apps/antigravity-ide.svg
-      ln -s antigravity-ide.svg $out/share/icons/hicolor/scalable/apps/antigravity.svg
 
       # Register mime associations
       mkdir -p $out/share/mime/packages
