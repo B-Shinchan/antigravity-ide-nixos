@@ -81,11 +81,16 @@ jobs:
           fi
           git push origin HEAD:refs/heads/main --tags
 
+      - name: Generate Release Notes
+        if: steps.updater.outputs.has_update == 'true'
+        id: notes
+        run: |
+          python3 scripts/generate-release-notes.py "v${{ steps.updater.outputs.version }}" > release-notes.md
+
       - name: Create GitHub Release
         if: steps.updater.outputs.has_update == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "v${{ steps.updater.outputs.version }}"
-          name: "Antigravity IDE v${{ steps.updater.outputs.version }}"
-          body: |
-            Automated release tracking official Google Antigravity IDE edge release `${{ steps.updater.outputs.version }}` (build `${{ steps.updater.outputs.build }}`).
+          name: "${{ steps.notes.outputs.title }}"
+          body_path: release-notes.md

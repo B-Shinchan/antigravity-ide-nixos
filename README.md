@@ -4,8 +4,9 @@
   <p>Production-grade Nix packaging of Google's agent-first development environment built on VS Code</p>
 
   <p>
-    <a href="https://github.com/B-Shinchan/antigravity-nixos/actions/workflows/ci.yml"><img src="https://github.com/B-Shinchan/antigravity-nixos/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
-    <a href="https://github.com/B-Shinchan/antigravity-nixos/actions/workflows/update.yml"><img src="https://github.com/B-Shinchan/antigravity-nixos/actions/workflows/update.yml/badge.svg" alt="Upstream Update" /></a>
+    <a href="https://github.com/B-Shinchan/antigravity-ide-nixos/actions/workflows/ci.yml"><img src="https://github.com/B-Shinchan/antigravity-ide-nixos/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
+    <a href="https://github.com/B-Shinchan/antigravity-ide-nixos/actions/workflows/update.yml"><img src="https://github.com/B-Shinchan/antigravity-ide-nixos/actions/workflows/update.yml/badge.svg" alt="Upstream Update" /></a>
+    <a href="https://github.com/B-Shinchan/antigravity-ide-nixos/releases"><img src="https://img.shields.io/github/v/release/B-Shinchan/antigravity-ide-nixos?logo=github&label=Release" alt="Latest Release" /></a>
     <a href="https://nixos.org"><img src="https://img.shields.io/badge/Nix_Flake-blue?logo=nixos&logoColor=white" alt="Nix Flake" /></a>
     <a href="https://wayland.freedesktop.org/"><img src="https://img.shields.io/badge/Wayland-Ready-green?logo=wayland&logoColor=white" alt="Wayland Ready" /></a>
     <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License" /></a>
@@ -30,13 +31,13 @@
 Launch Antigravity IDE immediately using Nix Flakes:
 
 ```bash
-nix run github:B-Shinchan/antigravity-nixos
+nix run github:B-Shinchan/antigravity-ide-nixos
 ```
 
 Or test a specific file or workspace directory:
 
 ```bash
-nix run github:B-Shinchan/antigravity-nixos -- ~/my-project
+nix run github:B-Shinchan/antigravity-ide-nixos -- ~/my-project
 ```
 
 ---
@@ -45,7 +46,7 @@ nix run github:B-Shinchan/antigravity-nixos -- ~/my-project
 
 ### Option 1: NixOS Flake Configuration
 
-Add `antigravity-nixos` to your `/etc/nixos/flake.nix`:
+Add `antigravity-ide-nixos` to your `/etc/nixos/flake.nix`:
 
 ```nix
 {
@@ -53,17 +54,17 @@ Add `antigravity-nixos` to your `/etc/nixos/flake.nix`:
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    antigravity-nixos.url = "github:B-Shinchan/antigravity-nixos";
+    antigravity-ide-nixos.url = "github:B-Shinchan/antigravity-ide-nixos";
   };
 
-  outputs = { self, nixpkgs, antigravity-nixos, ... }@inputs: {
+  outputs = { self, nixpkgs, antigravity-ide-nixos, ... }@inputs: {
     nixosConfigurations.myhostname = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         ./configuration.nix
 
         # Method A: Use the included NixOS module
-        antigravity-nixos.nixosModules.default
+        antigravity-ide-nixos.nixosModules.default
         {
           programs.antigravity-ide.enable = true;
         }
@@ -71,7 +72,7 @@ Add `antigravity-nixos` to your `/etc/nixos/flake.nix`:
         # OR Method B: Add directly to systemPackages
         # ({ pkgs, ... }: {
         #   environment.systemPackages = [
-        #     inputs.antigravity-nixos.packages.${pkgs.stdenv.hostPlatform.system}.default
+        #     inputs.antigravity-ide-nixos.packages.${pkgs.stdenv.hostPlatform.system}.default
         #   ];
         # })
       ];
@@ -98,11 +99,11 @@ In your `home.nix`:
 {
   # Method A: Direct package inclusion
   home.packages = [
-    inputs.antigravity-nixos.packages.${pkgs.stdenv.hostPlatform.system}.default
+    inputs.antigravity-ide-nixos.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
   # OR Method B: Home Manager module
-  # imports = [ inputs.antigravity-nixos.homeManagerModules.default ];
+  # imports = [ inputs.antigravity-ide-nixos.homeManagerModules.default ];
   # programs.antigravity-ide.enable = true;
 }
 ```
@@ -114,13 +115,13 @@ In your `home.nix`:
 You can install `antigravity-ide` directly into your user profile:
 
 ```bash
-nix profile install github:B-Shinchan/antigravity-nixos
+nix profile install github:B-Shinchan/antigravity-ide-nixos
 ```
 
 Or enter a temporary shell:
 
 ```bash
-nix shell github:B-Shinchan/antigravity-nixos -c antigravity-ide
+nix shell github:B-Shinchan/antigravity-ide-nixos -c antigravity-ide
 ```
 
 ---
@@ -132,12 +133,38 @@ You can easily overlay Antigravity IDE into `pkgs`:
 ```nix
 {
   nixpkgs.overlays = [
-    inputs.antigravity-nixos.overlays.default
+    inputs.antigravity-ide-nixos.overlays.default
   ];
 }
 ```
 
 This makes `pkgs.antigravity-ide` available in standard package lists.
+
+---
+
+## 📌 Version Management & Pinning
+
+This repository maintains official [GitHub Releases](https://github.com/B-Shinchan/antigravity-ide-nixos/releases) tracking each upstream Google release.
+
+### Understanding Versions
+
+1. **Upstream Application Version**: The official version released by Google (e.g., `2.6.0`, build `5526304964083712`).
+2. **Nix Package Version**: Declared in `pkgs/antigravity-ide/sources.json` and exposed via Flake outputs (`packages.${system}.default.version`).
+3. **GitHub Packaging Release**: Git tags formatted as `v<UPSTREAM_VERSION>` (e.g., `v2.6.0`). Packaging-only fixes use `v<UPSTREAM_VERSION>-<REVISION>` (e.g., `v2.6.0-1`).
+
+### Pinning a Specific Release
+
+By default, referencing `github:B-Shinchan/antigravity-ide-nixos` tracks the latest release on `main`. To pin an exact validated version in your `flake.nix`:
+
+```nix
+inputs.antigravity-ide-nixos.url = "github:B-Shinchan/antigravity-ide-nixos/v2.6.0";
+```
+
+To update pinned inputs:
+
+```bash
+nix flake update antigravity-ide-nixos
+```
 
 ---
 
@@ -158,7 +185,7 @@ This package is part of a suite of official vendor AI applications packaged for 
 
 | Application | Command | Repository |
 | :--- | :--- | :--- |
-| **Google Antigravity IDE** | `antigravity-ide` | [antigravity-nixos](https://github.com/B-Shinchan/antigravity-nixos) |
+| **Google Antigravity IDE** | `antigravity-ide` | [antigravity-ide-nixos](https://github.com/B-Shinchan/antigravity-ide-nixos) |
 | **Google Antigravity Hub** | `antigravity-hub` | [antigravity-hub-nixos](https://github.com/B-Shinchan/antigravity-hub-nixos) |
 | **ChatGPT Desktop** | `chatgpt` | [chatgpt-desktop-nixos](https://github.com/B-Shinchan/chatgpt-desktop-nixos) |
 | **Claude Desktop** | `claude-desktop` | [claude-desktop-nixos](https://github.com/B-Shinchan/claude-desktop-nixos) |
@@ -168,7 +195,7 @@ This package is part of a suite of official vendor AI applications packaged for 
 ## ⚙️ Repository Layout
 
 ```text
-antigravity-nixos/
+antigravity-ide-nixos/
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml            # CI build & flake evaluation

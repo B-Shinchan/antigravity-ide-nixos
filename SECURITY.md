@@ -16,7 +16,7 @@ Only the latest release published on the `main` branch of this repository is sup
 If you discover a security vulnerability in this repository:
 
 1. **Do not create a public issue**.
-2. Open a private [Security Advisory](https://github.com/B-Shinchan/antigravity-nixos/security/advisories/new) on GitHub or contact the maintainer directly.
+2. Open a private [Security Advisory](https://github.com/B-Shinchan/antigravity-ide-nixos/security/advisories/new) on GitHub or contact the maintainer directly.
 3. Include details of the vulnerability, reproduction steps, and any potential impact.
 
 ---
