@@ -53,8 +53,10 @@ def fetch_page(url: str, max_retries: int = 3) -> str:
                 return content.decode("utf-8", errors="replace")
         except (urllib.error.URLError, TimeoutError) as exc:
             if attempt == max_retries:
-                raise RuntimeError(f"Failed to fetch {url} after {max_retries} attempts: {exc}")
-            time.sleep(2 ** attempt)
+                raise RuntimeError(
+                    f"Failed to fetch {url} after {max_retries} attempts: {exc}"
+                )
+            time.sleep(2**attempt)
 
 
 def calculate_sri_hash(url: str, max_retries: int = 3) -> str:
@@ -72,13 +74,17 @@ def calculate_sri_hash(url: str, max_retries: int = 3) -> str:
                     hasher.update(chunk)
                     bytes_read += len(chunk)
             sri = "sha256-" + base64.b64encode(hasher.digest()).decode("utf-8")
-            print(f"  -> Successfully hashed ({bytes_read // (1024*1024)} MB): {sri}")
+            print(f"  -> Successfully hashed ({bytes_read // (1024 * 1024)} MB): {sri}")
             return sri
         except (urllib.error.URLError, TimeoutError) as exc:
-            print(f"  [Attempt {attempt}/{max_retries}] Network error: {exc}. Retrying...")
+            print(
+                f"  [Attempt {attempt}/{max_retries}] Network error: {exc}. Retrying..."
+            )
             if attempt == max_retries:
-                raise RuntimeError(f"Failed to stream and hash {url} after {max_retries} attempts: {exc}")
-            time.sleep(3 ** attempt)
+                raise RuntimeError(
+                    f"Failed to stream and hash {url} after {max_retries} attempts: {exc}"
+                )
+            time.sleep(3**attempt)
 
 
 def get_latest_release():
@@ -125,7 +131,9 @@ def update(dry_run: bool = False) -> bool:
                 f.write("has_update=false\n")
         return False
 
-    print(f"New version found: {current_version} -> {latest_version} (build {latest_build})")
+    print(
+        f"New version found: {current_version} -> {latest_version} (build {latest_build})"
+    )
 
     base_url = f"https://edgedl.me.gvt1.com/edgedl/release2/j0qc3/antigravity/stable/{latest_version}-{latest_build}"
     platforms_data = {}
@@ -159,8 +167,14 @@ def update(dry_run: bool = False) -> bool:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Update Antigravity IDE package sources")
-    parser.add_argument("--dry-run", action="store_true", help="Check for updates without modifying files")
+    parser = argparse.ArgumentParser(
+        description="Update Antigravity IDE package sources"
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Check for updates without modifying files",
+    )
     args = parser.parse_args()
 
     update(dry_run=args.dry_run)

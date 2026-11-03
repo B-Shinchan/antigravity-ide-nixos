@@ -2,9 +2,10 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import sys
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import update
 
@@ -34,7 +35,6 @@ MOCK_HTML_NEWER = """
 
 
 class TestAntigravityUpdater(unittest.TestCase):
-
     def test_version_extraction_picks_highest(self):
         with patch("update.fetch_page", return_value=MOCK_HTML_PAGE):
             ver, build = update.get_latest_release()
@@ -48,34 +48,48 @@ class TestAntigravityUpdater(unittest.TestCase):
             self.assertEqual(build, "5000000000000000")
 
     def test_malformed_page_raises_error(self):
-        with patch("update.fetch_page", return_value="<html><body>No links here</body></html>"):
+        with patch(
+            "update.fetch_page", return_value="<html><body>No links here</body></html>"
+        ):
             with self.assertRaises(RuntimeError) as ctx:
                 update.get_latest_release()
-            self.assertIn("Failed to find Google edge delivery URLs", str(ctx.exception))
+            self.assertIn(
+                "Failed to find Google edge delivery URLs", str(ctx.exception)
+            )
 
     def test_update_already_up_to_date(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp_sources = Path(tmpdir) / "sources.json"
-            tmp_sources.write_text(json.dumps({"version": "2.5.5", "build": "4923483625488384"}))
-            with patch("update.SOURCES_FILE", tmp_sources), \
-                 patch("update.fetch_page", return_value=MOCK_HTML_PAGE):
+            tmp_sources.write_text(
+                json.dumps({"version": "2.5.5", "build": "4923483625488384"})
+            )
+            with (
+                patch("update.SOURCES_FILE", tmp_sources),
+                patch("update.fetch_page", return_value=MOCK_HTML_PAGE),
+            ):
                 has_update = update.update(dry_run=True)
                 self.assertFalse(has_update)
 
     def test_update_applies_new_version(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp_sources = Path(tmpdir) / "sources.json"
-            tmp_sources.write_text(json.dumps({"version": "2.5.5", "build": "4923483625488384"}))
-            with patch("update.SOURCES_FILE", tmp_sources), \
-                 patch("update.fetch_page", return_value=MOCK_HTML_NEWER), \
-                 patch("update.calculate_sri_hash", return_value="sha256-mockHash=="):
+            tmp_sources.write_text(
+                json.dumps({"version": "2.5.5", "build": "4923483625488384"})
+            )
+            with (
+                patch("update.SOURCES_FILE", tmp_sources),
+                patch("update.fetch_page", return_value=MOCK_HTML_NEWER),
+                patch("update.calculate_sri_hash", return_value="sha256-mockHash=="),
+            ):
                 has_update = update.update(dry_run=False)
                 self.assertTrue(has_update)
                 updated = json.loads(tmp_sources.read_text())
                 self.assertEqual(updated["version"], "2.6.0")
                 self.assertEqual(updated["build"], "5000000000000000")
                 self.assertIn("x86_64-linux", updated["platforms"])
-                self.assertEqual(updated["platforms"]["x86_64-linux"]["hash"], "sha256-mockHash==")
+                self.assertEqual(
+                    updated["platforms"]["x86_64-linux"]["hash"], "sha256-mockHash=="
+                )
 
 
 if __name__ == "__main__":

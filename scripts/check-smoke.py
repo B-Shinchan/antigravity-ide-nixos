@@ -17,7 +17,10 @@ BINARY = ROOT / "result" / "bin" / "antigravity-ide"
 
 def main():
     if not BINARY.exists():
-        print(f"Error: Binary {BINARY} does not exist. Run 'nix build' first.", file=sys.stderr)
+        print(
+            f"Error: Binary {BINARY} does not exist. Run 'nix build' first.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     # If running headless without DISPLAY or WAYLAND_DISPLAY, re-exec under xvfb-run if available
@@ -33,7 +36,10 @@ def main():
             cmd += [sys.executable, str(Path(__file__).resolve())] + sys.argv[1:]
             sys.exit(subprocess.call(cmd))
         else:
-            print("Error: Neither DISPLAY nor WAYLAND_DISPLAY is set, and xvfb-run is not installed.", file=sys.stderr)
+            print(
+                "Error: Neither DISPLAY nor WAYLAND_DISPLAY is set, and xvfb-run is not installed.",
+                file=sys.stderr,
+            )
             sys.exit(1)
 
     with tempfile.TemporaryDirectory(prefix="antigravity-smoke-") as temp_dir:
@@ -52,7 +58,9 @@ def main():
             runtime_dir.chmod(0o700)
             env["XDG_RUNTIME_DIR"] = str(runtime_dir)
 
-        print(f"Executing runtime smoke test for: {BINARY} on DISPLAY={env.get('DISPLAY', '<none>')}")
+        print(
+            f"Executing runtime smoke test for: {BINARY} on DISPLAY={env.get('DISPLAY', '<none>')}"
+        )
         proc = subprocess.Popen(
             [
                 str(BINARY),
@@ -83,7 +91,10 @@ def main():
                         stripped = line.rstrip()
                         collected_output.append(stripped)
                         print(f"[ide] {stripped}", flush=True)
-                        if "Browser onboarding server started" in stripped or "Starting browser onboarding" in stripped:
+                        if (
+                            "Browser onboarding server started" in stripped
+                            or "Starting browser onboarding" in stripped
+                        ):
                             found = True
                             break
                 if proc.poll() is not None:
@@ -99,10 +110,17 @@ def main():
                     pass
 
         if found:
-            print("\n✅ Antigravity IDE runtime smoke test passed: Electron and FHS initialized successfully.", flush=True)
+            print(
+                "\n✅ Antigravity IDE runtime smoke test passed: Electron and FHS initialized successfully.",
+                flush=True,
+            )
             sys.exit(0)
         else:
-            print("\n❌ Antigravity IDE failed to start properly within timeout.", file=sys.stderr, flush=True)
+            print(
+                "\n❌ Antigravity IDE failed to start properly within timeout.",
+                file=sys.stderr,
+                flush=True,
+            )
             print("Collected logs:", file=sys.stderr)
             for line in collected_output[-30:]:
                 print(f"  {line}", file=sys.stderr)
