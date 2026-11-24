@@ -21,7 +21,7 @@
 - 🤖 **Agent-First Workflow:** Full Google Antigravity IDE features out-of-the-box (autonomous agent execution, inline AI generation `Ctrl+I`, workspace browser, terminal assistance, code lenses).
 - 📦 **Nixpkgs FHS Integration:** Wrapped inside a hardened FHS bubblewrap sandbox—pre-compiled language servers (Python pyright/pylance, Rust rust-analyzer, Go gopls, C/C++ clangd, Node) and VS Code extensions run seamlessly with zero ELF patching.
 - 🎨 **Wayland & X11 Auto-Detection:** Automatically leverages native Wayland under compositors like GNOME, Niri, Hyprland, and Sway via `--ozone-platform-hint=auto`.
-- 🔄 **Fully Automated Upstream CI/CD:** Scheduled GitHub Actions poll Google's official manifest every 6 hours, verify SRI hashes, test builds, and release updates automatically.
+- 🔄 **Fully Automated Upstream CI/CD:** Scheduled GitHub Actions poll Google's official manifest every Sunday at 09:52 IST, verify SRI hashes, test builds, and release updates automatically.
 - 💻 **Cross-Platform:** Supports `x86_64-linux`, `aarch64-linux`, `x86_64-darwin`, and `aarch64-darwin`.
 
 ---
@@ -222,7 +222,7 @@ antigravity-ide-nixos/
 
 This repository requires zero manual version bumping:
 
-1. **Automated Discovery:** A GitHub Actions cron job triggers every 6 hours (`.github/workflows/update.yml`) and runs `python3 scripts/update.py`.
+1. **Automated Discovery:** A GitHub Actions cron job triggers every Sunday at 09:52 IST (`.github/workflows/update.yml`) and runs `python3 scripts/update.py`.
 2. **Decompressed Stream Hashing:** The updater queries `https://antigravity.google/download`, identifies new builds, streams the binaries from `https://edgedl.me.gvt1.com`, and calculates SRI SHA-256 hashes.
 3. **Verification:** The CI runner builds the flake locally to guarantee derivation health.
 4. **Automated Tag & Release:** On success, a new version commit, Git tag, and GitHub Release are generated.
